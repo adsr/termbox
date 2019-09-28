@@ -4,9 +4,9 @@ Version:         1.1.2
 Release:         1%{?dist}
 License:         MIT
 URL:             https://github.com/nsf/termbox
-Source:          https://github.com/nsf/termbox/archive/v%{version}.tar.gz
+Source:          https://github.com/nsf/termbox/archive/v%{version}/%{name}-%{version}.tar.gz
 
-BuildRequires:   python
+BuildRequires:   waf
 
 %description
 Termbox is a library that provides minimalistic API which allows the 
@@ -30,41 +30,37 @@ pseudo-graphical user interfaces.
 
 %package devel
 Summary: Development files for the termbox library
+Requires: %{name}%{?_isa} = %{version}-%{release}
+
 
 %description devel
 The header files and libraries for developing applications that use 
 the termbox library. Install the termbox-devel package if you want to
 develop applications which will use termbox.
 
-%package static
-Summary: Static libraries for termbox
-
-%description static
-The termbox-static package includes static libraries for termbox.
-
 %prep
 %setup -q
 
 %build
-./waf configure \
+CFLAGS='-g' waf configure \
     --prefix=%{_prefix} \
     --libdir=%{_libdir} \
     --includedir=%{_includedir}
-./waf %{?_smp_mflags} -v
+waf %{?_smp_mflags} -v
 
 %install
-./waf --destdir=$RPM_BUILD_ROOT -v install
+waf --destdir=$RPM_BUILD_ROOT -v install
+rm -rf $RPM_BUILD_ROOT%{_libdir}/*.{a,la}
 
 %files
-%{_libdir}/libtermbox.so
+%doc README.md
+%license COPYING
 %{_libdir}/libtermbox.so.1
 %{_libdir}/libtermbox.so.1.*
 
 %files devel
+%{_libdir}/libtermbox.so
 %{_includedir}/termbox.h
-
-%files static
-%{_libdir}/libtermbox.a
 
 %changelog
 * Fri Sep 13 2019 Adam Saponara <as@php.net> - 1.1.2-1
